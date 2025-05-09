@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialBinding: RootBinding(),
-      home: LoginPage()  
+      home: LoginPage()   
       // home: QuickPicksPage(),
     );
   }
