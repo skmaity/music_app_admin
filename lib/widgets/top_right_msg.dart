@@ -72,14 +72,21 @@ class _MyOverlayState extends State<MyOverlay>
               child: Column(
                 children: [
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Text(
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        "hello how are you doing, hope you are all right and fine with you family",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Text(
+                              textAlign: TextAlign.start,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              widget.message,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(
@@ -92,7 +99,7 @@ class _MyOverlayState extends State<MyOverlay>
                         quarterTurns: 2,
                         child: LinearProgressIndicator(
                                 value: 1.0 - _controller.value,
-                                color: Colors.white.withAlpha(100),
+                                color: widget.success ? Colors.white.withAlpha(100) : Colors.redAccent,
                                 backgroundColor: Colors.white.withAlpha(20),
                               ),
                       );

@@ -1,6 +1,4 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:music_app_admin/pages/quick_picks/alert_msg/alert_msg.dart';
 import 'package:music_app_admin/pages/quick_picks/models/song_model.dart';
 
 class QuickPicksController extends GetxController {

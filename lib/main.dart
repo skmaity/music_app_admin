@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:music_app_admin/home_page.dart';
 import 'package:music_app_admin/initial_binding.dart';
-import 'package:music_app_admin/login_page/login_page.dart';
-
+import 'package:music_app_admin/pages/login_page/login_page.dart';
 void main() async {
     WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
@@ -12,8 +12,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
  
- // hi how are you doing?
-  // for a change
   @override 
   Widget build(BuildContext context) {
     return GetMaterialApp( 
@@ -28,8 +26,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialBinding: RootBinding(),
-      home: LoginPage()   
-      // home: QuickPicksPage(),
+      home: LoginPage()
+      // home : HomePage()   
     );
   }
-}
+} 
