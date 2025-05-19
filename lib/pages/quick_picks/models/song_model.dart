@@ -1,56 +1,59 @@
-// To parse this JSON data, do
-//
-//     final song = songFromJson(jsonString);
 
 import 'dart:convert';
 
-Song songFromJson(String str) => Song.fromJson(json.decode(str));
+class MySongs {
+     int songid;
+     String title;
+     String songurl;
+     String coverurl;
+     String artist;
+    int isquickpick;
 
-String songToJson(Song data) => json.encode(data.toJson());
-
-class Song {
-    String? title;
-    String? songid;
-    String? cover;
-    String? song;
-    String? artist;
-
-    Song({
-        this.title,
-        this.songid,
-        this.cover,
-        this.song,
-        this.artist,
+    MySongs({
+        required this.songid,
+        required this.title,
+        required this.songurl,
+        required this.coverurl,
+        required this.artist,
+        required this.isquickpick,
     });
 
-    Song copyWith({
+    MySongs copyWith({
+        int? songid,
         String? title,
-        String? songid,
-        String? cover,
-        String? song,
+        String? songurl,
+        String? coverurl,
         String? artist,
+        int? isquickpick,
     }) => 
-        Song(
-            title: title ?? this.title,
+          MySongs(
             songid: songid ?? this.songid,
-            cover: cover ?? this.cover,
-            song: song ?? this.song,
+            title: title ?? this.title,
+            songurl: songurl ?? this.songurl,
+            coverurl: coverurl ?? this.coverurl,
             artist: artist ?? this.artist,
+            isquickpick: isquickpick ?? this.isquickpick,
         );
 
-    factory Song.fromJson(Map<String, dynamic> json) => Song(
-        title: json["title"],
+    factory MySongs.fromRawJson(Map<String, dynamic> map) => MySongs.fromJson(map);
+
+    String toRawJson() => json.encode(toJson());
+
+    factory MySongs.fromJson(Map<String, dynamic> json) => MySongs(
         songid: json["songid"],
-        cover: json["cover"],
-        song: json["song"],
+        title: json["title"],
+        songurl: json["songurl"],
+        coverurl: json["coverurl"],
         artist: json["artist"],
+        isquickpick: json["isquickpick"],
     );
 
     Map<String, dynamic> toJson() => {
-        "title": title,
         "songid": songid,
-        "cover": cover,
-        "song": song,
+        "title": title,
+        "songurl": songurl,
+        "coverurl": coverurl,
         "artist": artist,
+        "isquickpick": isquickpick,
     };
 }

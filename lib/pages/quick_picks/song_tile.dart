@@ -4,9 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_app_admin/pages/quick_picks/models/song_model.dart';
+import 'package:music_app_admin/url_admin.dart';
 
 class SongTile extends StatelessWidget {
-  final Song song;
+  final MySongs song; 
   final bool isQuickPick;
   final void Function()? onIconBtnPressed;
   final void Function()? onpressed;
@@ -21,7 +22,7 @@ class SongTile extends StatelessWidget {
     this.isLoading = false,
   });
 
-  void showHoverDialog(BuildContext context, Song song) {
+  void showHoverDialog(BuildContext context, MySongs song) {
     if (Get.isDialogOpen ?? false) return; // Prevent multiple dialogs
     Get.dialog(
 
@@ -52,8 +53,7 @@ class SongTile extends StatelessWidget {
                       child: SizedBox( 
                         
                                   
-                                    child: CachedNetworkImage(imageUrl: song.cover?? '',
-                                    
+                                    child: CachedNetworkImage(imageUrl: song.coverurl, 
                                       fit: BoxFit.cover,
                                       errorWidget: (context, url, error) {
                       return const Icon(Icons.error, color: Colors.red);
@@ -79,7 +79,7 @@ class SongTile extends StatelessWidget {
                             fontSize: 20,
                           )),
                       Text(
-                        song.title ?? 'N/A',
+                        song.title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -99,7 +99,7 @@ class SongTile extends StatelessWidget {
                             fontSize: 20,
                           )),
                       Text(
-                        song.artist ?? 'N/A',
+                        song.artist,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -145,7 +145,9 @@ class SongTile extends StatelessWidget {
             child: SizedBox( 
               height: 50,
               width: 50,
-              child: CachedNetworkImage(imageUrl: song.cover?? '',
+              // child: CachedNetworkImage(imageUrl: "${baseUrl}${song.coverurl}",
+              child: CachedNetworkImage(imageUrl: "https://fluttersubh.fun/music_apis/uploads/covers/cover_682778fd4f0723.48621579.jpg",
+
               
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) {
@@ -162,12 +164,12 @@ class SongTile extends StatelessWidget {
             ),
           ),
           title: Text(
-            song.title ?? 'N/A',
+            song.title,
             style: TextStyle(color: Colors.white),
             maxLines: 1,
           ),
           subtitle: Text(
-            song.artist ?? 'N/A',
+            song.artist,
             style: TextStyle(color: Colors.white, fontSize: 12),
             maxLines: 1,
           ),

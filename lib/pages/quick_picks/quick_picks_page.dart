@@ -15,8 +15,8 @@ class _QuickPicksPageState extends State<QuickPicksPage> {
 
   @override
   void initState() {
-    super.initState();
-    // quickPicksController.getAllSongs();
+    super.initState(); 
+    quickPicksController.getAllSongs(Get.context!); 
     // quickPicksController.getQuickPicks();
   }
   int containerOpacity = 60;
@@ -65,7 +65,7 @@ class _QuickPicksPageState extends State<QuickPicksPage> {
                         child: ListView.builder(
                           itemCount: quickPicksController.quickPicks.length,
                           itemBuilder: (context, index) {
-                            return SongTile( 
+                            return SongTile(  
                             isQuickPick: true,
                               song: quickPicksController.quickPicks[index],
                               onIconBtnPressed: () {
@@ -113,25 +113,25 @@ class _QuickPicksPageState extends State<QuickPicksPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    // Obx(
-                    //   ()=> Expanded(
-                    //     child: ListView.builder( 
-                    //       itemCount: quickPicksController.allSongs.length,
-                    //       itemBuilder: (context, index) {
-                    //         return Obx(
-                    //           ()=> SongTile(      
-                    //           isLoading: quickPicksController.isAddToQuickPicksLoading.value,
-                    //             song: quickPicksController.allSongs[index],
-                    //             onIconBtnPressed: () {
-                    //             quickPicksController.addToQuickPicks(quickPicksController.allSongs[index]);
-                    //             },
-                    //             onpressed: () {},
-                    //           ),
-                    //         );
-                    //       },
-                    //     ),
-                    //   ),
-                    // ),
+                    Obx(
+                      ()=> Expanded(
+                        child: ListView.builder( 
+                          itemCount: quickPicksController.allSongs.length,
+                          itemBuilder: (context, index) {
+                            return Obx(
+                              ()=> SongTile(      
+                              isLoading: quickPicksController.isLoading.value,
+                                song: quickPicksController.allSongs[index],
+                                onIconBtnPressed: () {  
+                                quickPicksController.addToQuickPicks(quickPicksController.allSongs[index], context);
+                                },
+                                onpressed: () {},
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

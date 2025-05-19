@@ -202,7 +202,7 @@ class _AddSongsPageState extends State<AddSongsPage> {
                           ),
                           TextButton.icon(
                             iconAlignment: IconAlignment.end,
-                            onPressed: () {
+                            onPressed: () { 
                               _functions
                                   .pickSongFile()
                                   .whenComplete(() => setState(() {
