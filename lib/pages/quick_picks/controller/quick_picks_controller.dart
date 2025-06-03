@@ -47,8 +47,36 @@ class QuickPicksController extends GetxController {
   //     }
   //   });
   // }
+  getQuickPicks(context) async{
+     isLoading.value = true;
+  try {
+    d.Response response = await dio.get(getQuickPicksUrl
+    );
 
-addToQuickPicks(MySongs song,context) async {
+    if (response.statusCode == 200 && response.data['success'] == true) {
+      // showOverlayToast(context, true, 'Song added to quick picks');
+      quickPicks.clear();
+     for (var element in response.data['data']) { 
+          quickPicks.add(MySongs.fromJson(element));
+        }
+
+    } else {
+      showOverlayToast(context, false, 'Failed to get quick picks');
+    }
+  } catch (e) {
+    isLoading.value = false;
+
+    print('Dio error: $e');
+    showOverlayToast(context, false, 'Network error: Unable to connect');
+  }
+  isLoading.value = false;
+  }
+
+
+
+
+
+Future addToQuickPicks(MySongs song,context) async {
   isLoading.value = true;
   try {
     d.Response response = await dio.post(addToQuickPicksUrl, data:
@@ -68,5 +96,30 @@ addToQuickPicks(MySongs song,context) async {
   }
   isLoading.value = false;
 }
+
+
+
+  Future removeFromQuickPicks(MySongs song,context) async {
+
+     isLoading.value = true;
+  try {
+    d.Response response = await dio.post(removeFromQuickPicksUrl, data:
+    {"songid": song.songid}
+    );
+
+    if (response.statusCode == 200 && response.data['success'] == true) {
+      showOverlayToast(context, true, 'Song removed from quick picks');
+    } else {
+      showOverlayToast(context, false, 'Failed to remove song from quick picks');
+    }
+  } catch (e) {
+    isLoading.value = false;
+
+    print('Dio error: $e');
+    showOverlayToast(context, false, 'Network error: Unable to connect');
+  }
+  isLoading.value = false;
+
+  }
 
 }

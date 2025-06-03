@@ -145,8 +145,8 @@ class SongTile extends StatelessWidget {
             child: SizedBox( 
               height: 50,
               width: 50,
-              // child: CachedNetworkImage(imageUrl: "${baseUrl}${song.coverurl}",
-              child: CachedNetworkImage(imageUrl: "https://fluttersubh.fun/music_apis/uploads/covers/cover_682778fd4f0723.48621579.jpg",
+              child: CachedNetworkImage(imageUrl: "${baseUrl}${song.coverurl}",
+              // child: CachedNetworkImage(imageUrl: "https://fluttersubh.fun/music_apis/uploads/covers/cover_682778fd4f0723.48621579.jpg",
 
               
                 fit: BoxFit.cover,

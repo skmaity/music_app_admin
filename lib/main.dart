@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
       ),
       initialBinding: RootBinding(),
       home: LoginPage()
+      
       // home : HomePage()   
     );
   }
