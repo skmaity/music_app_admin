@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:music_app_admin/pages/login_page/controller/login_controller.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,8 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-
-  LoginController controller = Get.find<LoginController>();
+  // LoginController controller = Get.find<LoginController>();
   int containerOpacity = 60;
   int borderOpacity = 70;
   TextEditingController userid = TextEditingController();
@@ -26,6 +27,12 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      // Get.to(()=>AddSongsPage(),
+      //                 transition: Transition.rightToLeft,
+      //                 binding: AddSongsBindings()
+      //                 );
+    });
     _bgController = AnimationController(
       duration: const Duration(seconds: 200),
       vsync: this,
@@ -214,8 +221,12 @@ class _LoginPageState extends State<LoginPage>
                             TextButton.icon(
                               iconAlignment: IconAlignment.end,
                               onPressed: () async {
+                                // context.push('/home');
+                                context.go('/home');
+
                                 if (_formKey.currentState!.validate()) {
-                                 await controller.logAdmin(context,userid.text, pass.text);
+                                  // await controller.logAdmin(
+                                  //     context, userid.text, pass.text);
                                 }
                               },
                               icon: Icon(

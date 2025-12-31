@@ -71,7 +71,7 @@ class _QuickPicksPageState extends State<QuickPicksPage> {
                               onIconBtnPressed: () {
                                   quickPicksController.removeFromQuickPicks(quickPicksController.quickPicks[index],context).then((v){
 quickPicksController.getQuickPicks(context);
-
+quickPicksController.getAllSongs(context);
                                   });
 
                               },
@@ -122,12 +122,13 @@ quickPicksController.getQuickPicks(context);
                           itemCount: quickPicksController.allSongs.length,
                           itemBuilder: (context, index) {
                             return Obx(
-                              ()=> SongTile(       
+                              ()=> SongTile(        
                               isLoading: quickPicksController.isLoading.value,
                                 song: quickPicksController.allSongs[index],
-                                onIconBtnPressed: () {  
+                                onIconBtnPressed: () {    
                                 quickPicksController.addToQuickPicks(quickPicksController.allSongs[index], context) .then((v){
 quickPicksController.getQuickPicks(context);
+quickPicksController.getAllSongs(context);
                                 });
                                 },
                                 onpressed: () {},

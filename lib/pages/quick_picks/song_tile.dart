@@ -53,7 +53,7 @@ class SongTile extends StatelessWidget {
                       child: SizedBox( 
                         
                                   
-                                    child: CachedNetworkImage(imageUrl: song.coverurl, 
+                                    child: CachedNetworkImage(imageUrl: "${baseUrl}${song.coverurl}", 
                                       fit: BoxFit.cover,
                                       errorWidget: (context, url, error) {
                       return const Icon(Icons.error, color: Colors.red);
@@ -185,13 +185,13 @@ class SongTile extends StatelessWidget {
             ),
           ),
       )
-      : IconButton(
+      :  IconButton(
           hoverColor: isQuickPick ? Colors.orange : Colors.greenAccent,
           icon: Icon(
-            isQuickPick ? Icons.remove : Icons.add,
+            isQuickPick ? Icons.remove : song.isquickpick == 1 ? Icons.wb_cloudy : Icons.add,
             color: Colors.white,
           ),
-          onPressed: onIconBtnPressed,
+          onPressed: isQuickPick ?  onIconBtnPressed : song.isquickpick == 1 ? null : onIconBtnPressed,
         ),
         ),
       ),

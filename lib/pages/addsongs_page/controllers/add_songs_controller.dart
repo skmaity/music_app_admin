@@ -1,5 +1,8 @@
-import 'dart:typed_data';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get.dart';
 import 'package:music_app_admin/widgets/top_right_msg.dart';
 import 'package:uuid/uuid.dart';
@@ -58,4 +61,56 @@ class AddSongsController extends GetxController {
       
     }
   }
+
+
+
+
+Future<void> pickAndBulkUpload(BuildContext context) async {
+  try {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['mp3'],
+      withData: kIsWeb, // Needed for `fromBytes`
+    );
+
+    if (result == null || result.count == 0) {
+      showOverlayToast(context, false, 'No files selected.');
+      return;
+    }
+
+    List<Map<String, dynamic>> metadataList = [];
+
+    for (final file in result.files) {
+      try {
+        Metadata metadata;
+
+        if (kIsWeb) {
+          metadata = await MetadataRetriever.fromBytes(file.bytes!);
+        } else {
+          metadata = await MetadataRetriever.fromFile(File(file.path!));
+        }
+
+        final data = {
+          'title': metadata.trackName ?? 'Unknown Title',
+          'artist': metadata.trackArtistNames ?? 'Unknown Artist',
+          'album': metadata.albumName ?? 'Unknown Album',
+          'duration': metadata.trackDuration ?? 0,
+          'fileName': file.name,
+        };
+
+        metadataList.add(data);
+      } catch (e) {
+        debugPrint('Error reading metadata from ${file.name}: $e');
+      }
+    }
+
+    debugPrint('Finished extracting metadata for ${metadataList.length} files.');
+    // TODO: Upload this metadata list to Firestore or your backend
+    showOverlayToast(context, true, 'Metadata extracted for ${metadataList.length} files.');
+
+  } catch (e) {
+    showOverlayToast(context, false, 'Failed to pick files: $e');
+  }
+}
 }
