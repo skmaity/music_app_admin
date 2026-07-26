@@ -7,7 +7,7 @@ import 'package:music_app_admin/pages/quick_picks/models/song_model.dart';
 import 'package:music_app_admin/url_admin.dart';
 
 class SongTile extends StatelessWidget {
-  final MySongs song; 
+  final MySongs song;
   final bool isQuickPick;
   final void Function()? onIconBtnPressed;
   final void Function()? onpressed;
@@ -25,7 +25,6 @@ class SongTile extends StatelessWidget {
   void showHoverDialog(BuildContext context, MySongs song) {
     if (Get.isDialogOpen ?? false) return; // Prevent multiple dialogs
     Get.dialog(
-
       Dialog(
         alignment: Alignment(0, 0),
         backgroundColor: Colors.white.withAlpha(10),
@@ -50,23 +49,23 @@ class SongTile extends StatelessWidget {
                   Expanded(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: SizedBox( 
-                        
-                                  
-                                    child: CachedNetworkImage(imageUrl: "${baseUrl}${song.coverurl}", 
-                                      fit: BoxFit.cover,
-                                      errorWidget: (context, url, error) {
-                      return const Icon(Icons.error, color: Colors.red);
-                                      },
-                                      placeholder: (context, url) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: Colors.white,
-                        strokeWidth: 0.5,
+                      child: SizedBox(
+                        child: CachedNetworkImage(
+                          imageUrl: "$baseUrl${song.coverurl}",
+                          fit: BoxFit.cover,
+                          errorWidget: (context, url, error) {
+                            return const Icon(Icons.error, color: Colors.red);
+                          },
+                          placeholder: (context, url) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 0.5,
+                              ),
+                            );
+                          },
                         ),
-                      );
-                                      },
-                                    ),
-                                  ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -90,7 +89,7 @@ class SongTile extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 5),
-                   Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Artist: ',
@@ -142,21 +141,22 @@ class SongTile extends StatelessWidget {
           ),
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: SizedBox( 
+            child: SizedBox(
               height: 50,
               width: 50,
-              child: CachedNetworkImage(imageUrl: "${baseUrl}${song.coverurl}",
-              // child: CachedNetworkImage(imageUrl: "https://fluttersubh.fun/music_apis/uploads/covers/cover_682778fd4f0723.48621579.jpg",
+              child: CachedNetworkImage(
+                imageUrl: "$baseUrl${song.coverurl}",
+                // child: CachedNetworkImage(imageUrl: "https://fluttersubh.fun/music_apis/uploads/covers/cover_682778fd4f0723.48621579.jpg",
 
-              
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) {
                   return const Icon(Icons.error, color: Colors.red);
                 },
                 placeholder: (context, url) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Colors.white,
-                    strokeWidth: 0.5,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 0.5,
                     ),
                   );
                 },
@@ -173,26 +173,34 @@ class SongTile extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontSize: 12),
             maxLines: 1,
           ),
-  trailing: isLoading
-      ? Padding(
-        padding: const EdgeInsets.only(right: 7),
-        child: SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 0.5,
-            ),
-          ),
-      )
-      :  IconButton(
-          hoverColor: isQuickPick ? Colors.orange : Colors.greenAccent,
-          icon: Icon(
-            isQuickPick ? Icons.remove : song.isquickpick == 1 ? Icons.wb_cloudy : Icons.add,
-            color: Colors.white,
-          ),
-          onPressed: isQuickPick ?  onIconBtnPressed : song.isquickpick == 1 ? null : onIconBtnPressed,
-        ),
+          trailing: isLoading
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 7),
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 0.5,
+                    ),
+                  ),
+                )
+              : IconButton(
+                  hoverColor: isQuickPick ? Colors.orange : Colors.greenAccent,
+                  icon: Icon(
+                    isQuickPick
+                        ? Icons.remove
+                        : song.isquickpick == 1
+                            ? Icons.wb_cloudy
+                            : Icons.add,
+                    color: Colors.white,
+                  ),
+                  onPressed: isQuickPick
+                      ? onIconBtnPressed
+                      : song.isquickpick == 1
+                          ? null
+                          : onIconBtnPressed,
+                ),
         ),
       ),
     );

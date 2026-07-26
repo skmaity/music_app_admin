@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:music_app_admin/widgets/top_right_msg.dart';
 import 'package:uuid/uuid.dart';
 import 'package:dio/dio.dart' as d;
-import 'package:music_app_admin/url_admin.dart'; 
+import 'package:music_app_admin/url_admin.dart';
 
 class AddSongsController extends GetxController {
   final d.Dio _dio = d.Dio();
@@ -21,7 +21,8 @@ class AddSongsController extends GetxController {
   ) async {
     try {
       if (coverImg == null || songFile == null) {
-        showOverlayToast(Get.context!, false, 'Please pick a cover and song file');
+        showOverlayToast(
+            Get.context!, false, 'Please pick a cover and song file');
         return;
       }
 
@@ -41,7 +42,7 @@ class AddSongsController extends GetxController {
       });
 
       d.Response response = await _dio.post(
-        adminAddSongsUrl, 
+        adminAddSongsUrl,
         data: formData,
         options: d.Options(
           contentType: 'multipart/form-data',
@@ -49,68 +50,65 @@ class AddSongsController extends GetxController {
       );
 
       if (response.statusCode == 200 && response.data['success'] == true) {
-        showOverlayToast(context, response.data['success'], response.data['message']);
-      
+        showOverlayToast(
+            Get.context!, response.data['success'], response.data['message']);
       } else {
-          showOverlayToast(context, response.data['success'], response.data['message']);
-      
+        showOverlayToast(
+            Get.context!, response.data['success'], response.data['message']);
       }
     } catch (e) {
-        showOverlayToast(context, false, 'Upload failed: $e');
-        print(e);
-      
+      showOverlayToast(Get.context!, false, 'Upload failed: $e');
+      // print(e);
     }
   }
 
+  Future<void> pickAndBulkUpload(BuildContext context) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: ['mp3'],
+        withData: kIsWeb, // Needed for `fromBytes`
+      );
 
-
-
-Future<void> pickAndBulkUpload(BuildContext context) async {
-  try {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['mp3'],
-      withData: kIsWeb, // Needed for `fromBytes`
-    );
-
-    if (result == null || result.count == 0) {
-      showOverlayToast(context, false, 'No files selected.');
-      return;
-    }
-
-    List<Map<String, dynamic>> metadataList = [];
-
-    for (final file in result.files) {
-      try {
-        Metadata metadata;
-
-        if (kIsWeb) {
-          metadata = await MetadataRetriever.fromBytes(file.bytes!);
-        } else {
-          metadata = await MetadataRetriever.fromFile(File(file.path!));
-        }
-
-        final data = {
-          'title': metadata.trackName ?? 'Unknown Title',
-          'artist': metadata.trackArtistNames ?? 'Unknown Artist',
-          'album': metadata.albumName ?? 'Unknown Album',
-          'duration': metadata.trackDuration ?? 0,
-          'fileName': file.name,
-        };
-
-        metadataList.add(data);
-      } catch (e) {
-        debugPrint('Error reading metadata from ${file.name}: $e');
+      if (result == null || result.count == 0) {
+        showOverlayToast(Get.context!, false, 'No files selected.');
+        return;
       }
+
+      List<Map<String, dynamic>> metadataList = [];
+
+      for (final file in result.files) {
+        try {
+          Metadata metadata;
+
+          if (kIsWeb) {
+            metadata = await MetadataRetriever.fromBytes(file.bytes!);
+          } else {
+            metadata = await MetadataRetriever.fromFile(File(file.path!));
+          }
+
+          final data = {
+            'title': metadata.trackName ?? 'Unknown Title',
+            'artist': metadata.trackArtistNames ?? 'Unknown Artist',
+            'album': metadata.albumName ?? 'Unknown Album',
+            'duration': metadata.trackDuration ?? 0,
+            'fileName': file.name,
+          };
+
+          metadataList.add(data);
+        } catch (e) {
+          debugPrint('Error reading metadata from ${file.name}: $e');
+        }
+      }
+
+      debugPrint(
+          'Finished extracting metadata for ${metadataList.length} files.');
+
+      showOverlayToast(Get.context!, true,
+          'Metadata extracted for ${metadataList.length} files.');
+    } catch (e) {
+      showOverlayToast(Get.context!, false, 'Failed to pick files: $e');
     }
-
-    debugPrint('Finished extracting metadata for ${metadataList.length} files.');
-    // TODO: Upload this metadata list to Firestore or your backend
-    showOverlayToast(context, true, 'Metadata extracted for ${metadataList.length} files.');
-
-  } catch (e) {
-    showOverlayToast(context, false, 'Failed to pick files: $e');
   }
-}
 }

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:music_app_admin/home_page.dart';
+import 'package:music_app_admin/pages/add_artist_page.dart';
 import 'package:music_app_admin/pages/addsongs_page/add_songs_page.dart';
 import 'package:music_app_admin/pages/login_page/login_page.dart';
+import 'package:music_app_admin/pages/quick_picks/quick_picks_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +50,25 @@ final GoRouter _router = GoRouter(initialLocation: '/', routes: [
   ),
   GoRoute(
     path: '/addsong',
-    builder: (context, state) => AddSongsPage(),
-  )
+    pageBuilder: (context, state) => _slideIn(AddSongsPage()),
+  ),
+  GoRoute(
+    path: '/quickpicks',
+    pageBuilder: (context, state) => _slideIn(QuickPicksPage()),
+  ),
+  GoRoute(
+    path: '/addartist',
+    pageBuilder: (context, state) => _slideIn(AddArtistPage()),
+  ),
 ]);
+
+/// Right-to-left slide, matching the old `Transition.rightToLeft`.
+CustomTransitionPage _slideIn(Widget child) => CustomTransitionPage(
+      child: child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          SlideTransition(
+        position: Tween(begin: const Offset(1, 0), end: Offset.zero)
+            .animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+        child: child,
+      ),
+    );

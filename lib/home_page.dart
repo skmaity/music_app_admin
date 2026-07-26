@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:music_app_admin/pages/add_artist_page.dart';
-import 'package:music_app_admin/pages/addsongs_page/add_songs_page.dart';
-import 'package:music_app_admin/pages/addsongs_page/bindings/add_songs_bindings.dart';
-import 'package:music_app_admin/pages/quick_picks/quick_picks_page.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -48,9 +45,7 @@ class _HomePageState extends State<HomePage> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(20),
                       onTap: () {
-                        Get.to(() => AddSongsPage(),
-                            transition: Transition.rightToLeft,
-                            binding: AddSongsBindings());
+                        context.push('/addsong');
                       },
                       child: Container(
                         height: 80,
@@ -101,8 +96,7 @@ class _HomePageState extends State<HomePage> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(20),
                       onTap: () {
-                        Get.to(() => QuickPicksPage(),
-                            transition: Transition.rightToLeft);
+                        context.push('/quickpicks');
                       },
                       child: Container(
                           height: 80,
@@ -155,8 +149,7 @@ class _HomePageState extends State<HomePage> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(20),
                       onTap: () {
-                        Get.to(() => AddArtistPage(),
-                            transition: Transition.rightToLeft);
+                        context.push('/addartist');
                       },
                       child: Container(
                           height: 80,

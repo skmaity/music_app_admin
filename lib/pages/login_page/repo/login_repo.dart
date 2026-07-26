@@ -19,15 +19,13 @@ class LoginRepo {
 
     try {
       Response response = await dio.post(adminLoginUrl, data: jsonEncode(data));
-      if(response.statusCode == 200){
-      return ResponceMessage.fromJson(response.data);
-
-      }
-      else{
+      if (response.statusCode == 200) {
+        return ResponceMessage.fromJson(response.data);
+      } else {
         return null;
       }
     } catch (e) {
-      print("Login error: $e");
+      // print("Login error: $e");
       return null;
     }
   }

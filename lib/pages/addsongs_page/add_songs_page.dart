@@ -27,7 +27,7 @@ class _AddSongsPageState extends State<AddSongsPage> {
   double albumSize = 150.0;
   // late FireStoreServices service;
 
-  AddSongsController controller = Get.find<AddSongsController>();
+  AddSongsController controller = Get.put(AddSongsController());
   @override
   void initState() {
     _functions = Get.put(AddSongsFunctions());
