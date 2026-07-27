@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_app_admin/pages/addsongs_page/add_songs_functions.dart';
+import 'package:music_app_admin/pages/addsongs_page/bulk_upload_dialog.dart';
 import 'package:music_app_admin/pages/addsongs_page/controllers/add_songs_controller.dart';
 import 'package:music_app_admin/widgets/top_right_msg.dart';
 
@@ -376,8 +377,14 @@ class _AddSongsPageState extends State<AddSongsPage> {
                       ),
                       TextButton.icon(
                         iconAlignment: IconAlignment.end,
-                        onPressed: () {
-                          controller.pickAndBulkUpload(context);
+                        onPressed: () async {
+                          await controller.pickBulkSongs(context);
+                          if (!context.mounted ||
+                              controller.bulkSongs.isEmpty) {
+                            return;
+                          }
+                          controller.bulkCover.value ??= _functions.pickedImg;
+                          showBulkUploadDialog(context, controller);
                         },
                         icon: null,
                         label: Text(
