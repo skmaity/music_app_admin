@@ -1,410 +1,294 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:music_app_admin/pages/addsongs_page/add_songs_functions.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app_admin/pages/addsongs_page/bloc/add_songs_bloc.dart';
 import 'package:music_app_admin/pages/addsongs_page/bulk_upload_dialog.dart';
-import 'package:music_app_admin/pages/addsongs_page/controllers/add_songs_controller.dart';
 import 'package:music_app_admin/widgets/top_right_msg.dart';
 
-class AddSongsPage extends StatefulWidget {
+class AddSongsPage extends StatelessWidget {
   const AddSongsPage({super.key});
 
   @override
-  State<AddSongsPage> createState() => _AddSongsPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => AddSongsBloc(),
+      child: const _AddSongsView(),
+    );
+  }
 }
 
-class _AddSongsPageState extends State<AddSongsPage> {
-  int containerOpacity = 60;
-  int borderOpacity = 70;
+class _AddSongsView extends StatefulWidget {
+  const _AddSongsView();
+
+  @override
+  State<_AddSongsView> createState() => _AddSongsViewState();
+}
+
+class _AddSongsViewState extends State<_AddSongsView> {
+  static const int _containerOpacity = 60;
+  static const int _borderOpacity = 70;
+  static const double _albumSize = 150.0;
+  static const _glow = [Shadow(blurRadius: 9, color: Colors.white, offset: Offset(0, 0))];
 
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController artist = TextEditingController();
+  final TextEditingController title = TextEditingController();
 
-  TextEditingController artist = TextEditingController();
-  TextEditingController cover = TextEditingController();
-  TextEditingController song = TextEditingController();
-  TextEditingController title = TextEditingController();
-
-  late AddSongsFunctions _functions;
-
-  double albumSize = 150.0;
-  // late FireStoreServices service;
-
-  AddSongsController controller = Get.put(AddSongsController());
   @override
-  void initState() {
-    _functions = Get.put(AddSongsFunctions());
-    // service = FireStoreServices();
+  void dispose() {
+    artist.dispose();
+    title.dispose();
+    super.dispose();
+  }
 
-    super.initState();
+  void _submit() {
+    // The bloc raises its own "pick a cover and song" toast when files are
+    // missing; here we only gate on the text fields.
+    if (_formKey.currentState!.validate()) {
+      context.read<AddSongsBloc>().add(
+            SubmitSong(title: title.text.trim(), artist: artist.text.trim()),
+          );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blueAccent,
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          Center(
-            child: Container(
-              padding: EdgeInsets.all(20),
-              height: 600,
-              width: 400,
-              decoration: BoxDecoration(
-                border: Border.all(
-                    width: 1,
-                    color: Colors.grey.shade200.withAlpha(borderOpacity)),
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.grey.shade200.withAlpha(containerOpacity),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Show the picked image (if any)
-                        if (_functions.pickedImg != null)
-                          Container(
-                            height: albumSize,
-                            width: albumSize,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                image: DecorationImage(
-                                    image: MemoryImage(_functions.pickedImg!),
-                                    fit: BoxFit.cover),
-                                boxShadow: [
-                                  BoxShadow(
-                                      blurRadius: 20,
-                                      color: Colors.white,
-                                      offset: Offset(0, 0))
-                                ]),
-                          )
-                        else
-                          Container(
-                            height: albumSize,
-                            width: albumSize,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: Colors.white.withAlpha(180)),
-                            child: Center(child: Icon(Icons.image_outlined)),
-                          ),
-
-                        // TextButton for picking the image
-                        TextButton.icon(
-                          iconAlignment: IconAlignment.end,
-                          onPressed: () {
-                            _functions
-                                .pickImageFile()
-                                .whenComplete(() => setState(() {}));
-                          },
-                          icon: Icon(
-                            Icons.photo_album_outlined,
-                            color: Colors.white,
-                            shadows: [
-                              const Shadow(
-                                  blurRadius: 9.0,
-                                  color: Colors.white,
-                                  offset: Offset(0, 0))
-                            ],
-                            size: 20,
-                          ),
-                          label: Text(
-                            'Pick Cover',
-                            style: TextStyle(
-                              shadows: [
-                                const Shadow(
-                                    blurRadius: 9.0,
-                                    color: Colors.white,
-                                    offset: Offset(0, 0)),
-                              ],
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              _functions.pickedSongData.isNotEmpty
-                                  ? Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "${_functions.pickedSongData['fileName']}.${_functions.pickedSongData['fileExtension']}",
-                                            maxLines: 3,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              shadows: [
-                                                const Shadow(
-                                                    blurRadius: 9.0,
-                                                    color: Colors.white,
-                                                    offset: Offset(0, 0)),
-                                              ],
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            _functions.pickedSongData.isNotEmpty
-                                                ? "${_functions.pickedSongData['fileSize']} MB"
-                                                : 'null',
-                                            style: TextStyle(
-                                              shadows: [
-                                                const Shadow(
-                                                    blurRadius: 9.0,
-                                                    color: Colors.amber,
-                                                    offset: Offset(0, 0)),
-                                              ],
-                                              color: Colors.amber[100],
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : Text(
-                                      'Pick a song to see\ndetails',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        shadows: [
-                                          const Shadow(
-                                              blurRadius: 9.0,
-                                              color: Colors.white,
-                                              offset: Offset(0, 0)),
-                                        ],
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        TextButton.icon(
-                          iconAlignment: IconAlignment.end,
-                          onPressed: () {
-                            _functions
-                                .pickSongFile()
-                                .whenComplete(() => setState(() {
-                                      if (_functions
-                                          .pickedSongData.isNotEmpty) {
-                                        song.text =
-                                            "${_functions.pickedSongData['fileName']}.${_functions.pickedSongData['fileExtension']}";
-                                      }
-                                    }));
-                          },
-                          icon: Icon(
-                            Icons.music_note_rounded,
-                            color: Colors.white,
-                            shadows: [
-                              const Shadow(
-                                  blurRadius: 9.0,
-                                  color: Colors.white,
-                                  offset: Offset(0, 0))
-                            ],
-                            size: 20,
-                          ),
-                          label: Text(
-                            'Pick Song',
-                            style: TextStyle(
-                              shadows: [
-                                const Shadow(
-                                    blurRadius: 9.0,
-                                    color: Colors.white,
-                                    offset: Offset(0, 0)),
-                              ],
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: TextFormField(
-                            controller: artist,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(
-                                alignLabelWithHint: true,
-
-                                // normal border
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white30),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(15))),
-
-                                // focused border
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white30),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(15))),
-                                suffixIcon: Icon(
-                                  Icons.person,
-                                  color: Colors.white,
-                                ),
-                                hintText: "Artist",
-                                hintStyle: TextStyle(color: Colors.white70),
-                                border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)))),
-                            autovalidateMode: AutovalidateMode.onUnfocus,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: 25,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: TextFormField(
-                            controller: title,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(
-                                alignLabelWithHint: true,
-
-                                // normal border
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white30),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(15))),
-
-                                // focused border
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white30),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(15))),
-                                suffixIcon: Icon(
-                                  Icons.title,
-                                  color: Colors.white,
-                                ),
-                                hintText: "Title",
-                                hintStyle: TextStyle(color: Colors.white70),
-                                border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)))),
-                            autovalidateMode: AutovalidateMode.onUnfocus,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton.icon(
-                        iconAlignment: IconAlignment.end,
-                        onPressed: () {
-                          if (_functions.pickedImg == null ||
-                              _functions.pickedSong == null) {
-                            showOverlayToast(context, false,
-                                'Please pick a cover and song file');
-                            return;
-                          }
-
-                          if (_formKey.currentState!.validate()) {
-                            controller.addSong(
-                                _functions.pickedImg,
-                                _functions.pickedSong,
-                                artist.text,
-                                title.text,
-                                context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Processing Data')),
-                            );
-                          } else {
-                            showOverlayToast(Get.context!, false,
-                                'Please fill all the fields');
-                          }
-                        },
-                        icon: null,
-                        label: Text(
-                          'Add Song',
-                          style: TextStyle(shadows: [
-                            const Shadow(
-                                blurRadius: 9.0,
-                                color: Colors.white,
-                                offset: Offset(0, 0))
-                          ], color: Colors.white, fontSize: 20),
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10),
-                        height: 80,
-                        width: 1.5,
-                        decoration: BoxDecoration(
-                          color:
-                              Colors.grey.shade200.withAlpha(containerOpacity),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      TextButton.icon(
-                        iconAlignment: IconAlignment.end,
-                        onPressed: () async {
-                          await controller.pickBulkSongs(context);
-                          if (!context.mounted ||
-                              controller.bulkSongs.isEmpty) {
-                            return;
-                          }
-                          controller.bulkCover.value ??= _functions.pickedImg;
-                          showBulkUploadDialog(context, controller);
-                        },
-                        icon: null,
-                        label: Text(
-                          'Bulk upload',
-                          style: TextStyle(shadows: [
-                            const Shadow(
-                                blurRadius: 9.0,
-                                color: Colors.white,
-                                offset: Offset(0, 0))
-                          ], color: Colors.white, fontSize: 20),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<AddSongsBloc, AddSongsState>(
+            listenWhen: (p, c) => c.message != null && c.message != p.message,
+            listener: (context, state) => showOverlayToast(
+                context, state.isSuccessMessage ?? false, state.message!),
+          ),
+          BlocListener<AddSongsBloc, AddSongsState>(
+            listenWhen: (p, c) => c.showBulkDialog && !p.showBulkDialog,
+            listener: (context, state) =>
+                showBulkUploadDialog(context, context.read<AddSongsBloc>()),
+          ),
+        ],
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                height: 600,
+                width: 400,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      width: 1,
+                      color: Colors.grey.shade200.withAlpha(_borderOpacity)),
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.grey.shade200.withAlpha(_containerOpacity),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _coverRow(),
+                    _songRow(),
+                    _fields(),
+                    _actions(),
+                  ],
+                ),
               ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  Widget _coverRow() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            BlocBuilder<AddSongsBloc, AddSongsState>(
+              buildWhen: (p, c) => p.coverBytes != c.coverBytes,
+              builder: (context, state) => state.coverBytes != null
+                  ? Container(
+                      height: _albumSize,
+                      width: _albumSize,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(
+                            image: MemoryImage(state.coverBytes!),
+                            fit: BoxFit.cover),
+                        boxShadow: const [
+                          BoxShadow(
+                              blurRadius: 20,
+                              color: Colors.white,
+                              offset: Offset(0, 0))
+                        ],
+                      ),
+                    )
+                  : Container(
+                      height: _albumSize,
+                      width: _albumSize,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.white.withAlpha(180)),
+                      child: const Center(child: Icon(Icons.image_outlined)),
+                    ),
+            ),
+            TextButton.icon(
+              iconAlignment: IconAlignment.end,
+              onPressed: () =>
+                  context.read<AddSongsBloc>().add(PickCoverImage()),
+              icon: const Icon(Icons.photo_album_outlined,
+                  color: Colors.white, shadows: _glow, size: 20),
+              label: const Text('Pick Cover',
+                  style: TextStyle(
+                      shadows: _glow, color: Colors.white, fontSize: 18)),
+            ),
+          ],
+        ),
+      );
+
+  Widget _songRow() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            Expanded(
+              child: BlocBuilder<AddSongsBloc, AddSongsState>(
+                buildWhen: (p, c) =>
+                    p.songName != c.songName || p.songSize != c.songSize,
+                builder: (context, state) => state.songBytes != null
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            state.songName ?? '',
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                shadows: _glow,
+                                color: Colors.white,
+                                fontSize: 12),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            '${state.songSize} MB',
+                            style: TextStyle(
+                              shadows: const [
+                                Shadow(
+                                    blurRadius: 9.0,
+                                    color: Colors.amber,
+                                    offset: Offset(0, 0))
+                              ],
+                              color: Colors.amber[100],
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      )
+                    : const Text(
+                        'Pick a song to see\ndetails',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            shadows: _glow, color: Colors.white, fontSize: 12),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            TextButton.icon(
+              iconAlignment: IconAlignment.end,
+              onPressed: () => context.read<AddSongsBloc>().add(PickSongFile()),
+              icon: const Icon(Icons.music_note_rounded,
+                  color: Colors.white, shadows: _glow, size: 20),
+              label: const Text('Pick Song',
+                  style: TextStyle(
+                      shadows: _glow, color: Colors.white, fontSize: 12)),
+            ),
+          ],
+        ),
+      );
+
+  Widget _fields() => Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: TextFormField(
+                controller: artist,
+                style: const TextStyle(color: Colors.white),
+                decoration: _decoration('Artist', Icons.person),
+                autovalidateMode: AutovalidateMode.onUnfocus,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Please enter some text' : null,
+              ),
+            ),
+            const SizedBox(height: 25),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: TextFormField(
+                controller: title,
+                style: const TextStyle(color: Colors.white),
+                decoration: _decoration('Title', Icons.title),
+                autovalidateMode: AutovalidateMode.onUnfocus,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Please enter some text' : null,
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _actions() => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          BlocBuilder<AddSongsBloc, AddSongsState>(
+            buildWhen: (p, c) => p.isSubmitting != c.isSubmitting,
+            builder: (context, state) => state.isSubmitting
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 1),
+                    ),
+                  )
+                : TextButton(
+                    onPressed: _submit,
+                    child: const Text('Add Song',
+                        style: TextStyle(
+                            shadows: _glow, color: Colors.white, fontSize: 20)),
+                  ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            height: 80,
+            width: 1.5,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200.withAlpha(_containerOpacity),
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.read<AddSongsBloc>().add(PickBulkSongs()),
+            child: const Text('Bulk upload',
+                style: TextStyle(
+                    shadows: _glow, color: Colors.white, fontSize: 20)),
+          ),
+        ],
+      );
+
+  InputDecoration _decoration(String hint, IconData icon) => InputDecoration(
+        alignLabelWithHint: true,
+        enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white30),
+            borderRadius: BorderRadius.all(Radius.circular(15))),
+        focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white30),
+            borderRadius: BorderRadius.all(Radius.circular(15))),
+        suffixIcon: Icon(icon, color: Colors.white),
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.white70),
+        border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+      );
 }

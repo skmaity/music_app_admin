@@ -2,161 +2,153 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:music_app_admin/pages/addsongs_page/controllers/add_songs_controller.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app_admin/pages/addsongs_page/bloc/add_songs_bloc.dart';
 
 const _glow = [Shadow(blurRadius: 9.0, color: Colors.white, offset: Offset(0, 0))];
 
-/// Review sheet for the files picked by [AddSongsController.pickBulkSongs]:
-/// shows the tags read from every file and uploads them all in one go.
-Future<void> showBulkUploadDialog(
-  BuildContext context,
-  AddSongsController controller,
-) {
+/// Review sheet for the files picked by [PickBulkSongs]: shows the tags read
+/// from every file and uploads them all in one go. Shares the page's
+/// [AddSongsBloc] so progress and the final toast flow through the same state.
+Future<void> showBulkUploadDialog(BuildContext context, AddSongsBloc bloc) {
   final size = MediaQuery.sizeOf(context);
 
   return showDialog(
     context: context,
     barrierDismissible: false,
     barrierColor: Colors.black.withAlpha(30),
-    builder: (context) => Dialog(
-      backgroundColor: Colors.white.withAlpha(10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            width: min(560, size.width * 0.9),
-            height: size.height * 0.75,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              border: Border.all(
-                  color: Colors.grey.shade200.withAlpha(70), width: 0.5),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Bulk Upload',
-                  style: TextStyle(
-                      shadows: _glow, color: Colors.white, fontSize: 26),
-                ),
-                const SizedBox(height: 4),
-                Obx(() => Text(
-                      _subtitle(controller),
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
-                    )),
-                Obx(() {
-                  final missing =
-                      controller.bulkSongs.where((s) => s.cover == null).length;
-                  if (missing == 0) return const SizedBox(height: 12);
-
-                  final cover = controller.bulkCover.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 12),
-                    child: Row(
-                      children: [
-                        if (cover != null)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: Image.memory(cover,
-                                height: 28, width: 28, fit: BoxFit.cover),
-                          ),
-                        if (cover != null) const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            cover != null
-                                ? 'This cover will be used for $missing file'
-                                    '${missing == 1 ? '' : 's'} without album art'
-                                : '$missing file${missing == 1 ? ' has' : 's have'} '
-                                    'no album art — pick a cover for them',
-                            style: TextStyle(
-                                color: Colors.amber[100], fontSize: 11),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: controller.isUploading.value
+    builder: (_) => BlocProvider.value(
+      value: bloc,
+      child: Dialog(
+        backgroundColor: Colors.white.withAlpha(10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              width: min(560, size.width * 0.9),
+              height: size.height * 0.75,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border.all(
+                    color: Colors.grey.shade200.withAlpha(70), width: 0.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: BlocBuilder<AddSongsBloc, AddSongsState>(
+                builder: (context, state) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Bulk Upload',
+                        style: TextStyle(
+                            shadows: _glow, color: Colors.white, fontSize: 26)),
+                    const SizedBox(height: 4),
+                    Text(_subtitle(state),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
+                    _missingCoverBanner(context, state),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: state.bulkSongs.length,
+                        itemBuilder: (context, i) => _SongRow(
+                          song: state.bulkSongs[i],
+                          onRemove: state.isUploading
                               ? null
-                              : controller.pickBulkCover,
-                          child: Text(
-                            cover != null ? 'Change' : 'Pick cover',
+                              : () => context
+                                  .read<AddSongsBloc>()
+                                  .add(RemoveBulkSong(i)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: state.isUploading
+                              ? null
+                              : () => Navigator.pop(context),
+                          child: const Text('Close',
+                              style: TextStyle(
+                                  shadows: _glow,
+                                  color: Colors.white,
+                                  fontSize: 16)),
+                        ),
+                        TextButton.icon(
+                          iconAlignment: IconAlignment.end,
+                          onPressed: state.isUploading || state.bulkSongs.isEmpty
+                              ? null
+                              : () => context
+                                  .read<AddSongsBloc>()
+                                  .add(UploadBulkSongs()),
+                          icon: const Icon(Icons.cloud_upload_outlined,
+                              color: Colors.white, shadows: _glow, size: 20),
+                          label: Text(
+                            state.isUploading
+                                ? 'Uploading…'
+                                : 'Upload all (${state.bulkSongs.length})',
                             style: const TextStyle(
                                 shadows: _glow,
                                 color: Colors.white,
-                                fontSize: 14),
+                                fontSize: 18),
                           ),
                         ),
                       ],
                     ),
-                  );
-                }),
-                Expanded(
-                  child: Obx(
-                    () => ListView.builder(
-                      itemCount: controller.bulkSongs.length,
-                      itemBuilder: (context, i) => _SongRow(
-                        song: controller.bulkSongs[i],
-                        onRemove: controller.isUploading.value
-                            ? null
-                            : () => controller.bulkSongs.removeAt(i),
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Obx(
-                  () => Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        onPressed: controller.isUploading.value
-                            ? null
-                            : () => Navigator.pop(context),
-                        child: const Text(
-                          'Close',
-                          style: TextStyle(
-                              shadows: _glow,
-                              color: Colors.white,
-                              fontSize: 16),
-                        ),
-                      ),
-                      TextButton.icon(
-                        iconAlignment: IconAlignment.end,
-                        onPressed: controller.isUploading.value ||
-                                controller.bulkSongs.isEmpty
-                            ? null
-                            : () => controller.uploadBulkSongs(context),
-                        icon: const Icon(Icons.cloud_upload_outlined,
-                            color: Colors.white, shadows: _glow, size: 20),
-                        label: Text(
-                          controller.isUploading.value
-                              ? 'Uploading…'
-                              : 'Upload all (${controller.bulkSongs.length})',
-                          style: const TextStyle(
-                              shadows: _glow,
-                              color: Colors.white,
-                              fontSize: 18),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
       ),
     ),
-  ).then((_) => controller.bulkSongs.clear());
+  );
 }
 
-String _subtitle(AddSongsController controller) {
-  final total = controller.bulkSongs.length;
-  final done =
-      controller.bulkSongs.where((s) => s.status == BulkStatus.done).length;
-  if (controller.isUploading.value) return 'Uploading… $done of $total done';
+Widget _missingCoverBanner(BuildContext context, AddSongsState state) {
+  final missing = state.bulkSongs.where((s) => s.cover == null).length;
+  if (missing == 0) return const SizedBox(height: 12);
+
+  final cover = state.bulkCover;
+  return Padding(
+    padding: const EdgeInsets.only(top: 10, bottom: 12),
+    child: Row(
+      children: [
+        if (cover != null) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.memory(cover, height: 28, width: 28, fit: BoxFit.cover),
+          ),
+          const SizedBox(width: 8),
+        ],
+        Expanded(
+          child: Text(
+            cover != null
+                ? 'This cover will be used for $missing file'
+                    '${missing == 1 ? '' : 's'} without album art'
+                : '$missing file${missing == 1 ? ' has' : 's have'} '
+                    'no album art — pick a cover for them',
+            style: TextStyle(color: Colors.amber[100], fontSize: 11),
+          ),
+        ),
+        TextButton(
+          onPressed: state.isUploading
+              ? null
+              : () => context.read<AddSongsBloc>().add(PickBulkCover()),
+          child: Text(cover != null ? 'Change' : 'Pick cover',
+              style: const TextStyle(
+                  shadows: _glow, color: Colors.white, fontSize: 14)),
+        ),
+      ],
+    ),
+  );
+}
+
+String _subtitle(AddSongsState state) {
+  final total = state.bulkSongs.length;
+  final done = state.bulkSongs.where((s) => s.status == BulkStatus.done).length;
+  if (state.isUploading) return 'Uploading… $done of $total done';
   if (done > 0) return '$done of $total uploaded';
   return '$total song${total == 1 ? '' : 's'} • details read from the files';
 }

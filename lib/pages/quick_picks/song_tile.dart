@@ -2,8 +2,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:music_app_admin/pages/quick_picks/models/song_model.dart';
+import 'package:music_app_admin/models/song_model.dart';
 import 'package:music_app_admin/url_admin.dart';
 
 class SongTile extends StatelessWidget {
@@ -13,6 +12,10 @@ class SongTile extends StatelessWidget {
   final void Function()? onpressed;
   final bool isLoading;
 
+  /// Replaces the quick-pick add/remove button, for screens that need their
+  /// own row actions (edit / delete).
+  final Widget? trailing;
+
   const SongTile({
     super.key,
     this.isQuickPick = false,
@@ -20,12 +23,15 @@ class SongTile extends StatelessWidget {
     required this.onIconBtnPressed,
     required this.onpressed,
     this.isLoading = false,
+    this.trailing,
   });
 
   void showHoverDialog(BuildContext context, MySongs song) {
-    if (Get.isDialogOpen ?? false) return; // Prevent multiple dialogs
-    Get.dialog(
-      Dialog(
+    final size = MediaQuery.sizeOf(context);
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withAlpha(30),
+      builder: (context) => Dialog(
         alignment: Alignment(0, 0),
         backgroundColor: Colors.white.withAlpha(10),
         shape: RoundedRectangleBorder(
@@ -35,8 +41,8 @@ class SongTile extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
-              width: context.width * 0.2,
-              height: context.height * 0.5,
+              width: size.width * 0.2,
+              height: size.height * 0.5,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 border: Border.all(
@@ -114,7 +120,6 @@ class SongTile extends StatelessWidget {
           ),
         ),
       ),
-      barrierColor: Colors.black.withAlpha(30),
     );
   }
 
@@ -131,12 +136,12 @@ class SongTile extends StatelessWidget {
           onTap: () {
             showHoverDialog(context, song);
           },
-          tileColor: Colors.grey.shade100.withOpacity(0.2),
+          tileColor: Colors.grey.shade100.withValues(alpha: 0.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
             side: BorderSide(
               width: 0.5,
-              color: Colors.grey.shade200.withOpacity(0.5),
+              color: Colors.grey.shade200.withValues(alpha: 0.5),
             ),
           ),
           leading: ClipRRect(
@@ -173,8 +178,9 @@ class SongTile extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontSize: 12),
             maxLines: 1,
           ),
-          trailing: isLoading
-              ? Padding(
+          trailing: trailing ??
+              (isLoading
+                  ? Padding(
                   padding: const EdgeInsets.only(right: 7),
                   child: SizedBox(
                     height: 20,
@@ -200,7 +206,7 @@ class SongTile extends StatelessWidget {
                       : song.isquickpick == 1
                           ? null
                           : onIconBtnPressed,
-                ),
+                )),
         ),
       ),
     );

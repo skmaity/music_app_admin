@@ -16,8 +16,10 @@ void showOverlayToast(BuildContext context,bool success, String message) {
   );
 
   overlay.insert(overlayEntry);
-  Future.delayed(Duration(seconds: 3), () {
-    overlayEntry.remove();
+  Future.delayed(const Duration(seconds: 3), () {
+    // The route may have been popped before the timer fires; removing an entry
+    // that is already gone throws. (H6)
+    if (overlayEntry.mounted) overlayEntry.remove();
   });
 }
 

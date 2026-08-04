@@ -1,11 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:music_app_admin/pages/addsongs_page/add_songs_page.dart';
-import 'package:music_app_admin/pages/addsongs_page/bindings/add_songs_bindings.dart';
-import 'package:music_app_admin/pages/login_page/controller/login_controller.dart';
+import 'package:music_app_admin/pages/login_page/bloc/login_bloc.dart';
+import 'package:music_app_admin/pages/login_page/repo/login_repo.dart';
+import 'package:music_app_admin/widgets/top_right_msg.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,7 +15,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  LoginController controller = Get.put(LoginController());
   int containerOpacity = 60;
   int borderOpacity = 70;
   TextEditingController userid = TextEditingController();
@@ -29,10 +27,6 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
-    // SchedulerBinding.instance.addPostFrameCallback((_) {
-    //   Get.to(() => AddSongsPage(),
-    //       transition: Transition.rightToLeft, binding: AddSongsBindings());
-    // });
     _bgController = AnimationController(
       duration: const Duration(seconds: 200),
       vsync: this,
@@ -49,8 +43,19 @@ class _LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return BlocProvider(
+      create: (context) => LoginBloc(repo: LoginRepo()),
+      child: BlocListener<LoginBloc, LoginState>(
+        listener: (context, state) {
+          if (state is LoginSuccess) {
+            showOverlayToast(context, true, state.message);
+            context.go('/home');
+          } else if (state is LoginFailure) {
+            showOverlayToast(context, false, state.message);
+          }
+        },
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -218,37 +223,45 @@ class _LoginPageState extends State<LoginPage>
                             SizedBox(
                               height: 80,
                             ),
-                            TextButton.icon(
-                              iconAlignment: IconAlignment.end,
-                              onPressed: () async {
-                                // context.push('/home');
-                                // context.go('/home');
-
-                                if (_formKey.currentState!.validate()) {
-                                  await controller.logAdmin(
-                                      context, userid.text, pass.text);
+                            BlocBuilder<LoginBloc, LoginState>(
+                              builder: (context, state) {
+                                if (state is LoginLoading) {
+                                  return const CircularProgressIndicator(color: Colors.white);
                                 }
+                                return TextButton.icon(
+                                  iconAlignment: IconAlignment.end,
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      context.read<LoginBloc>().add(
+                                            LoginSubmitted(
+                                              userId: userid.text,
+                                              password: pass.text,
+                                            ),
+                                          );
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Colors.white,
+                                    shadows: [
+                                      const Shadow(
+                                          blurRadius: 9.0,
+                                          color: Colors.white,
+                                          offset: Offset(0, 0))
+                                    ],
+                                    size: 20,
+                                  ),
+                                  label: Text(
+                                    'Submit',
+                                    style: TextStyle(shadows: [
+                                      const Shadow(
+                                          blurRadius: 9.0,
+                                          color: Colors.white,
+                                          offset: Offset(0, 0)),
+                                    ], color: Colors.white, fontSize: 20),
+                                  ),
+                                );
                               },
-                              icon: Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: Colors.white,
-                                shadows: [
-                                  const Shadow(
-                                      blurRadius: 9.0,
-                                      color: Colors.white,
-                                      offset: Offset(0, 0))
-                                ],
-                                size: 20,
-                              ),
-                              label: Text(
-                                'Submit',
-                                style: TextStyle(shadows: [
-                                  const Shadow(
-                                      blurRadius: 9.0,
-                                      color: Colors.white,
-                                      offset: Offset(0, 0)),
-                                ], color: Colors.white, fontSize: 20),
-                              ),
                             ),
                           ],
                         ),
@@ -259,7 +272,9 @@ class _LoginPageState extends State<LoginPage>
               ),
             ),
           ])
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }

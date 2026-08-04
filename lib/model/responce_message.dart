@@ -25,9 +25,12 @@ class ResponceMessage {
             message: message ?? this.message,
         );
 
+    /// Parsed defensively: a PHP warning, an HTML error page, or a proxy 5xx can
+    /// arrive without these keys or with the wrong type. Treat anything that is
+    /// not an explicit `true` as a failure, and never throw on a missing message.
     factory ResponceMessage.fromJson(Map<String, dynamic> json) => ResponceMessage(
-        success: json["success"],
-        message: json["message"],
+        success: json["success"] == true,
+        message: '${json["message"] ?? ''}',
     );
 
     Map<String, dynamic> toJson() => {
