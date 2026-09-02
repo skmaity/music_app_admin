@@ -42,7 +42,8 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    final size = MediaQuery.sizeOf(context);
+    final backgroundWidth = size.height * 16 / 3;
     return BlocProvider(
       create: (context) => LoginBloc(repo: LoginRepo()),
       child: BlocListener<LoginBloc, LoginState>(
@@ -65,23 +66,19 @@ class _LoginPageState extends State<LoginPage>
               animation: _bgAnimation,
               builder: (context, child) {
                 return Positioned(
-                  left: (_bgAnimation.value * -(3840)),
+                  left: -_bgAnimation.value * backgroundWidth,
                   top: 0,
                   bottom: 0,
                   child: Row(
                     children: [
-                      Image.asset(
-                        'assets/my_bg_2.png',
-                        fit: BoxFit.cover,
-                      ),
-                      Image.asset(
-                        'assets/my_bg_2.png',
-                        fit: BoxFit.cover,
-                      ),
-                      Image.asset(
-                        'assets/my_bg_2.png',
-                        fit: BoxFit.cover,
-                      ),
+                      for (var i = 0; i < 2; i++)
+                        Image.asset(
+                          'assets/my_bg_2.png',
+                          width: backgroundWidth,
+                          height: size.height,
+                          fit: BoxFit.fill,
+                          filterQuality: FilterQuality.high,
+                        ),
                     ],
                   ),
                 );
@@ -89,16 +86,16 @@ class _LoginPageState extends State<LoginPage>
             ),
 
             SizedBox(
-              height: MediaQuery.of(context).size.height,
-              width: width,
+              height: size.height,
+              width: size.width,
             ),
 
             Positioned.fill(
               child: Row(
                 children: [
                   Image.asset(
-                    width: width,
-                    height: MediaQuery.of(context).size.height,
+                    width: size.width,
+                    height: size.height,
                     'assets/gradient_layer.png',
                     fit: BoxFit.cover,
                   ),
