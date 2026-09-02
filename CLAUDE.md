@@ -53,6 +53,7 @@ patterns are live simultaneously.
 | Add Songs | **BLoC written, UI not migrated** | `AddSongsBloc` exists and is complete, but `add_songs_page.dart` and `bulk_upload_dialog.dart` still drive `AddSongsController` via `Obx`/`Get.put` |
 | Quick Picks | **GetX** | untouched |
 | Artists | **BLoC** | `ArtistsBloc` + `ArtistDetailBloc` on a shared `ArtistRepo`; done |
+| Listeners | **BLoC** | `StatsBloc`; done. Card on the home page, not a route |
 
 **Write new code as BLoC.** `get` stays in `pubspec.yaml` only until Add Songs
 and Quick Picks are migrated; `song_tile.dart` also still uses `Get.dialog` for
@@ -122,6 +123,14 @@ on buttons.
 
 ## Gotchas
 
+- **The listener stats need two deploy steps before they show anything.**
+  `../music_apis/migration_app_users.sql` must be run once in phpMyAdmin, and
+  `track_user.php` + `get_app_stats.php` uploaded. Separately, the count only
+  grows once a **phone app release carrying the launch ping** is out — the ping
+  lives in `music_app`'s `UseridController._ping`, so the installs already in
+  the wild are invisible until users update. The migration backfills whatever
+  it can from `user_fav`, which is the only table that has ever held a real
+  user id, so the card starts with a real (under-counted) number rather than 0.
 - **The live DB is missing the artist schema.** The six artist endpoints *are*
   deployed now (200, not 404) but all of them answer
   `{"success":false,"message":"Internal server error."}` because neither the

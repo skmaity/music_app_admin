@@ -12,6 +12,10 @@ String addToQuickPicksUrl = "${baseUrl}add_to_quick_picks.php";
 String getQuickPicksUrl = "${baseUrl}get_quick_picks.php";
 String removeFromQuickPicksUrl = "${baseUrl}remove_from_quick_picks.php";
 
+/// Install and active-user counts for the home page's Listeners card.
+/// Admin-only — it goes out through [authDio], not a bare Dio.
+String getAppStatsUrl = "${baseUrl}get_app_stats.php";
+
 String getAllArtistsUrl = "${baseUrl}get_all_artists.php";
 String getArtistDetailsUrl = "${baseUrl}get_artist_details.php";
 String createArtistUrl = "${baseUrl}create_artist.php";

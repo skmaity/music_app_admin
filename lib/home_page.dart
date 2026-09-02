@@ -3,10 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:music_app_admin/pages/all_songs/all_songs_section.dart';
 import 'package:music_app_admin/pages/all_songs/bloc/all_songs_bloc.dart';
+import 'package:music_app_admin/pages/stats/bloc/stats_bloc.dart';
+import 'package:music_app_admin/pages/stats/listeners_card.dart';
 import 'package:music_app_admin/session.dart';
 import 'package:music_app_admin/url_admin.dart';
 
-const _glow = [Shadow(blurRadius: 9, color: Colors.white, offset: Offset(0, 0))];
+const _glow = [
+  Shadow(blurRadius: 9, color: Colors.white, offset: Offset(0, 0))
+];
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,7 +32,7 @@ class _HomePageState extends State<HomePage> {
       // Even if the network call fails, drop the local token below.
     }
     Session.clear();
-    if (mounted) context.go('/');
+    if (mounted) context.go('/admin');
   }
 
   Widget _navCard(IconData icon, String label, String route) => Padding(
@@ -82,9 +86,18 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     _navCard(Icons.music_note, 'Add Songs', '/addsong'),
-                    _navCard(
-                        Icons.hotel_class_rounded, 'Quick picks', '/quickpicks'),
+                    _navCard(Icons.hotel_class_rounded, 'Quick picks',
+                        '/quickpicks'),
                     _navCard(Icons.person, 'Artists', '/artists'),
+                    // Not a nav card and not a route: the count is here to be
+                    // seen without being asked for.
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: BlocProvider(
+                        create: (_) => StatsBloc()..add(const LoadStats()),
+                        child: const ListenersCard(),
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Align(
                       alignment: Alignment.centerRight,
@@ -94,7 +107,8 @@ class _HomePageState extends State<HomePage> {
                         icon: const Icon(Icons.logout,
                             color: Colors.white, shadows: _glow, size: 18),
                         label: const Text('Logout',
-                            style: TextStyle(color: Colors.white, shadows: _glow)),
+                            style:
+                                TextStyle(color: Colors.white, shadows: _glow)),
                       ),
                     ),
                   ],

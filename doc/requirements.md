@@ -165,6 +165,39 @@ Song object:
 
 `songurl` and `coverurl` are **relative** — prefix with `baseUrl` to load them.
 
+### Written, not yet deployed — listener stats
+
+Both files exist in `../music_apis/` but have not been uploaded, and
+`migration_app_users.sql` has not been run. Until both are done the home page's
+Listeners card sits in its error state.
+
+| Endpoint | Method | Auth | Payload |
+|---|---|---|---|
+| `track_user.php` | POST json | none | `{userid}` — the phone app's per-install uuid |
+| `get_app_stats.php` | GET | bearer | — |
+
+`track_user.php` is called by the **phone app**, not this panel: once per launch
+from `UseridController`, which is the only thing that makes "active today" mean
+a day somebody opened the app. It is deliberately unauthenticated because the
+app has no login; a uuid v4 format check is the only gate.
+
+`get_app_stats.php` response `data`:
+
+```json
+{
+  "total_installs": 142,
+  "active_today": 38,
+  "active_7d": 96,
+  "active_30d": 120,
+  "new_today": 3,
+  "new_7d": 11,
+  "daily": [{ "day": "2026-07-08", "active": 11, "new": 2 }]
+}
+```
+
+`daily` is always exactly 30 entries, oldest first, with zero-days filled in by
+the endpoint — index straight into it.
+
 ### Proposed — artist endpoints
 
 None of these exist yet (all seven candidate names return 404). Contract and SQL

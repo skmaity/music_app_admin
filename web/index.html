@@ -18,21 +18,56 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Download Nyro, a focused Android music player, or sign in to the admin panel.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="music_app_admin">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="Nyro">
+  <link rel="apple-touch-icon" href="icons/nyro-mobile.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="icons/nyro-mobile.png"/>
 
-  <title>music_app_admin</title>
+  <title>Nyro - Music, your way</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #0a0612;
+    }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-content: center;
+      gap: 18px;
+      color: white;
+      font: 600 20px system-ui, sans-serif;
+      text-align: center;
+    }
+
+    #loading::before {
+      width: 42px;
+      height: 42px;
+      margin: auto;
+      border: 4px solid #ffffff33;
+      border-top-color: #7c3cff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      content: '';
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      #loading::before { animation: none; }
+    }
+  </style>
 </head>
 <body>
+  <div id="loading" role="status" aria-live="polite">Loading Nyro&hellip;</div>
   <!-- Pinned: newer mediainfo.js releases dropped dist/mediainfo.min.js and the
        global MediaInfo() API that flutter_media_metadata expects. -->
   <script type="text/javascript" src="https://unpkg.com/mediainfo.js@0.1.9/dist/mediainfo.min.js"></script>
