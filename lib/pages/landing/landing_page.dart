@@ -28,7 +28,11 @@ class LandingPage extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/my_bg_2.png', fit: BoxFit.cover),
+          Image.asset(
+            'assets/my_bg_2.png',
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+          ),
           ColoredBox(color: Colors.black.withAlpha(125)),
           SafeArea(
             child: SingleChildScrollView(
