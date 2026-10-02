@@ -42,8 +42,6 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final backgroundWidth = size.height * 16 / 3;
     return BlocProvider(
       create: (context) => LoginBloc(repo: LoginRepo()),
       child: BlocListener<LoginBloc, LoginState>(
@@ -57,10 +55,15 @@ class _LoginPageState extends State<LoginPage>
         },
         child: Scaffold(
           backgroundColor: Colors.transparent,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Stack(alignment: Alignment.center, children: [
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final size = constraints.biggest;
+              final backgroundWidth = size.height * 16 / 3;
+              return ClipRect(
+                child: Stack(
+                  fit: StackFit.expand,
+                  alignment: Alignment.center,
+                  children: [
             // Animated moving background image
             AnimatedBuilder(
               animation: _bgAnimation,
@@ -85,21 +88,10 @@ class _LoginPageState extends State<LoginPage>
               },
             ),
 
-            SizedBox(
-              height: size.height,
-              width: size.width,
-            ),
-
             Positioned.fill(
-              child: Row(
-                children: [
-                  Image.asset(
-                    width: size.width,
-                    height: size.height,
-                    'assets/gradient_layer.png',
-                    fit: BoxFit.cover,
-                  ),
-                ],
+              child: Image.asset(
+                'assets/gradient_layer.png',
+                fit: BoxFit.cover,
               ),
             ),
 
@@ -268,8 +260,10 @@ class _LoginPageState extends State<LoginPage>
                 ),
               ),
             ),
-          ])
-            ],
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
